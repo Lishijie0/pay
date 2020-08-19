@@ -1,0 +1,21 @@
+#!/bin/sh
+DIR_PHP=/d/phpStudy/PHPTutorial/php/php-7.2.1-nts/php.exe
+DIR_PROJECT=/d/phpStudy/PHPTutorial/WWW/pay
+DIR_PHP_CS_FIXER=php-cs-fixer.phar
+
+cd $DIR_PROJECT && echo > php_cs_fixer.txt
+files=$(git status -s|awk '{if (($1=="M"||$1=="A") && $2 ~ /.php$/)print $2;}')
+fix_tip=""
+
+for file in ${files[@]}
+do
+    fix_result=`$DIR_PHP $DIR_PHP_CS_FIXER fix $file --allow-risky=yes 2>/dev/null | grep '.php'`
+    echo $fix_result >> php_cs_fixer.txt
+    if [[ -n "$fix_result" ]]; then
+        fix_tip="代码进行了格式化,请重新提交"
+    fi
+done
+
+if [[ -n "$fix_tip" ]]; then
+    echo -e "\e[1;31m $fix_tip \e[0m"
+fi
